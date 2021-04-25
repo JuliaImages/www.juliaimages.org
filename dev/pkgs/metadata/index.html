@@ -3,7 +3,7 @@
 
 julia&gt; img = ImageMeta(fill(RGB(1,0,0), 3, 2), date=Date(2016, 7, 31), time=&quot;high noon&quot;)
 RGB ImageMeta with:
-  data: 3×2 Array{RGB{N0f8},2} with eltype RGB{Normed{UInt8,8}}
+  data: 3×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}
   properties:
     date: 2016-07-31
     time: high noon</code></pre><p>You can then index elements of <code>img</code> like this:</p><pre><code class="language-julia-repl">julia&gt; img[1,2]
@@ -15,24 +15,24 @@ julia&gt; img.time = &quot;evening&quot;
 
 julia&gt; img
 RGB ImageMeta with:
-  data: 3×2 Array{RGB{N0f8},2} with eltype RGB{Normed{UInt8,8}}
+  data: 3×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}
   properties:
     date: 2016-07-31
     time: evening</code></pre><p>You can extract the data matrix with <code>arraydata(img)</code>:</p><pre><code class="language-julia-repl">julia&gt; arraydata(img)
-3×2 Array{RGB{N0f8},2} with eltype RGB{FixedPointNumbers.Normed{UInt8,8}}:
+3×2 Array{RGB{N0f8},2} with eltype RGB{FixedPointNumbers.N0f8}:
  RGB{N0f8}(1.0,0.0,0.0)  RGB{N0f8}(1.0,0.0,0.0)
  RGB{N0f8}(1.0,0.0,0.0)  RGB{N0f8}(1.0,0.0,0.0)
  RGB{N0f8}(1.0,0.0,0.0)  RGB{N0f8}(1.0,0.0,0.0)</code></pre><p>and the properties dictionary with <code>properties</code>:</p><pre><code class="language-julia-repl">julia&gt; properties(img)
-Dict{Symbol,Any} with 2 entries:
+Dict{Symbol, Any} with 2 entries:
   :date =&gt; Date(&quot;2016-07-31&quot;)
   :time =&gt; &quot;high noon&quot;</code></pre><p>Properties are not accessed or modified by most of Images&#39; algorithms–-the traits that most affect processing are encoded through Julia&#39;s type system.  However, functions that receive an <code>ImageMeta</code> should return an <code>ImageMeta</code> when appropriate. Naturally, in your own code it&#39;s fine to use properties to your advantage for custom tasks.</p><p>If you index a scalar location (a single pixel), <code>img[i,j,...]</code> will return just the value of that pixel. But if you index a range, you get another <code>ImageMeta</code>:</p><pre><code class="language-julia-repl">julia&gt; c = img[1:2, 1:2]
 RGB ImageMeta with:
-  data: 2×2 Array{RGB{N0f8},2} with eltype RGB{Normed{UInt8,8}}
+  data: 2×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}
   properties:
     date: 2016-07-31
     time: high noon</code></pre><p>This copies both the data (just the relevant portions) and the properties dictionary. In contrast,</p><pre><code class="language-julia-repl">julia&gt; v = view(img, 1:2, 1:2)
 RGB ImageMeta with:
-  data: 2×2 view(::Array{RGB{N0f8},2}, 1:2, 1:2) with eltype RGB{Normed{UInt8,8}}
+  data: 2×2 view(::Array{RGB{N0f8},2}, 1:2, 1:2) with eltype RGB{N0f8}
   properties:
     date: 2016-07-31
     time: high noon</code></pre><p>shares both the data and the properties with the original image <code>img</code>. Modifying values or properties in <code>c</code> has no impact on <code>img</code>, but modifying values or properties in <code>v</code> does.</p><h3 id="copyproperties/shareproperties"><a class="docs-heading-anchor" href="#copyproperties/shareproperties">copyproperties/shareproperties</a><a id="copyproperties/shareproperties-1"></a><a class="docs-heading-anchor-permalink" href="#copyproperties/shareproperties" title="Permalink"></a></h3><p>Two convenient ways to construct a new image with the &quot;same&quot; properties are <code>copyproperties</code> (makes a copy of the properties dictionary) and <code>shareproperties</code> (shares the properties dictionary).</p><p>Incidentally, <code>similar</code> makes a copy of the properties dictionary.</p><h3 id="spatialproperties"><a class="docs-heading-anchor" href="#spatialproperties">spatialproperties</a><a id="spatialproperties-1"></a><a class="docs-heading-anchor-permalink" href="#spatialproperties" title="Permalink"></a></h3><p>Occasionally you may have a property that is linked to the spatial axes of the image. In such cases, one source for potential confusion is <code>permutedims</code>, which swaps the order of the dimensions in the array: if the order is not also swapped in the appropriate properties, chaos could result.</p><p>You can declare that certain properties are coupled to spatial axes using <code>&quot;spatialproperties&quot;</code>:</p><pre><code class="language-julia-repl">julia&gt; using ImageMetadata
@@ -52,10 +52,10 @@ Int64 ImageMeta with:
 
 julia&gt; imgp = permutedims(img, (2,1))
 Int64 ImageMeta with:
-  data: 5×3 Array{Int64,2}
+  data: 5×3 Matrix{Int64}
   properties:
     maxsum: [45, 42]
     spatialproperties: Set([:maxsum])
 
 julia&gt; maximum(sum(imgp, dims=1))
-45</code></pre><p>It&#39;s not possible to anticipate all the possible transformations that might be necessary, but at least simple swaps are handled automatically.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../axes/">« ImageAxes.jl</a><a class="docs-footer-nextpage" href="../segmentation/">ImageSegmentation.jl »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 15 April 2021 19:10">Thursday 15 April 2021</span>. Using Julia version 1.6.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+45</code></pre><p>It&#39;s not possible to anticipate all the possible transformations that might be necessary, but at least simple swaps are handled automatically.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../axes/">« ImageAxes.jl</a><a class="docs-footer-nextpage" href="../segmentation/">ImageSegmentation.jl »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 25 April 2021 19:34">Sunday 25 April 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

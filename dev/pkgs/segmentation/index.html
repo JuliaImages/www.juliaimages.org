@@ -9,12 +9,12 @@ segments = seeded_region_growing(img, seeds)
 # output
 
 Segmented Image with:
-  labels map: 240×360 Array{Int64,2}
+  labels map: 240×360 Matrix{Int64}
   number of labels: 3</code></pre><p>All the segmentation algorithms (except Fuzzy C-means) return a struct <code>SegmentedImage</code> that stores the segmentation result. <code>SegmentedImage</code> contains a list of applied labels, an array containing the assigned label for each pixel, and mean color and number of pixels in each segment. <a href="#Result-1">This section</a> explains how to access information about the segments.</p><pre><code class="language-julia-repl">julia&gt; length(segment_labels(segments))
 3
 
 julia&gt; segment_mean(segments)
-Dict{Int64,RGB{Float64}} with 3 entries:
+Dict{Int64, RGB{Float64}} with 3 entries:
   2 =&gt; RGB{Float64}(0.793598,0.839543,0.932374)
   3 =&gt; RGB{Float64}(0.329863,0.35779,0.237457)
   1 =&gt; RGB{Float64}(0.0646509,0.0587034,0.0743471)</code></pre><p>We can visualize each segment using its mean color:</p><pre><code class="language-julia">julia&gt; imshow(map(i-&gt;segment_mean(segments,i), labels_map(segments)));</code></pre><p><img src="assets/horse_seg1.jpg" alt="Original"/></p><p>This display form is used for many of the demonstrations below.</p><p>You can see that the algorithm did a fairly good job of segmenting the three objects. The only obvious error is the fact that elements of the sky that were &quot;framed&quot; by the horse ended up being grouped with the ground. This is because <code>seeded_region_growing</code> always returns connected regions, and there is no path connecting those portions of sky to the larger image. If we add some additional seed points in those regions, and give them the same label <code>2</code> that we used for the rest of the sky, we will get a result that is more or less perfect.</p><pre><code class="language-julia">seeds = [(CartesianIndex(126,81), 1), (CartesianIndex(93,255), 2), (CartesianIndex(171,103), 2),
@@ -25,19 +25,19 @@ julia&gt; img = load(&quot;src/pkgs/segmentation/assets/horse.jpg&quot;);
 
 julia&gt; segments = felzenszwalb(img, 100)
 Segmented Image with:
-  labels map: 240×360 Array{Int64,2}
+  labels map: 240×360 Matrix{Int64}
   number of labels: 43
 
 julia&gt; segments = felzenszwalb(img, 10)  #smaller segments but noisy segmentation
 Segmented Image with:
-  labels map: 240×360 Array{Int64,2}
+  labels map: 240×360 Matrix{Int64}
   number of labels: 312</code></pre><table><tr><th style="text-align: center">k = 100</th><th style="text-align: center">k = 10</th></tr><tr><td style="text-align: center"><img src="assets/horse_seg2.jpg" alt="Original"/></td><td style="text-align: center"><img src="assets/horse_seg3.jpg" alt="Original"/></td></tr></table><p>We only got two &quot;major&quot; segments with <code>k = 100</code>. Setting <code>k = 10</code> resulted in smaller but rather noisy segments. <code>felzenzwalb</code> also takes an optional argument <code>min_size</code> - it removes all segments smaller than <code>min_size</code> pixels. (Most methods don&#39;t remove small segments in their core algorithm. We can use the <code>prune_segments</code> method to postprocess the segmentation result and remove small segments.)</p><pre><code class="language-julia">segments = felzenszwalb(img, 10, 100)  # removes segments with fewer than 100 pixels
 imshow(map(i-&gt;segment_mean(segments,i), labels_map(segments)))</code></pre><p><img src="assets/horse_seg4.jpg" alt="Original"/></p><h2 id="Result"><a class="docs-heading-anchor" href="#Result">Result</a><a id="Result-1"></a><a class="docs-heading-anchor-permalink" href="#Result" title="Permalink"></a></h2><p>All segmentation algorithms (except Fuzzy C-Means) return a struct <a href="../../function_reference/#ImageSegmentation.SegmentedImage"><code>SegmentedImage</code></a> as its output. <code>SegmentedImage</code> contains all the necessary information about the segments. The following functions can be used to get the information about the segments:</p><ol><li><a href="../../function_reference/#ImageSegmentation.labels_map"><code>labels_map</code></a> : It returns an array containing the labels assigned to each pixel</li><li><a href="../../function_reference/#ImageSegmentation.segment_labels"><code>segment_labels</code></a> : It returns a list of all the assigned labels</li><li><a href="../../function_reference/#ImageSegmentation.segment_mean"><code>segment_mean</code></a> : It returns the mean intensity of the supplied label.</li><li><a href="../../function_reference/#ImageSegmentation.segment_pixel_count"><code>segment_pixel_count</code></a> : It returns the count of the pixels that are assigned the supplied label.</li></ol><h6 id="Demo"><a class="docs-heading-anchor" href="#Demo">Demo</a><a id="Demo-1"></a><a class="docs-heading-anchor-permalink" href="#Demo" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; img = fill(1, 4, 4);
 
 julia&gt; img[1:2,1:2] .= 2;
 
 julia&gt; img
-4×4 Array{Int64,2}:
+4×4 Matrix{Int64}:
  2  2  1  1
  2  2  1  1
  1  1  1  1
@@ -46,14 +46,14 @@ julia&gt; img
 julia&gt; seg = fast_scanning(img, 0.5);
 
 julia&gt; labels_map(seg) # returns the assigned labels map
-4×4 Array{Int64,2}:
+4×4 Matrix{Int64}:
  1  1  3  3
  1  1  3  3
  3  3  3  3
  3  3  3  3
 
 julia&gt; segment_labels(seg) # returns a list of all assigned labels
-2-element Array{Int64,1}:
+2-element Vector{Int64}:
  1
  3
 
@@ -72,21 +72,21 @@ julia&gt; seeds = [(CartesianIndex(104, 48), 1), (CartesianIndex( 49, 40), 1),
 
 julia&gt; seg = seeded_region_growing(img, seeds)
 Segmented Image with:
-  labels map: 183×275 Array{Int64,2}
+  labels map: 183×275 Matrix{Int64}
   number of labels: 2</code></pre><p><strong>Original</strong> <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Davidraju_Worm_Snake.jpg/275px-Davidraju_Worm_Snake.jpg">(source)</a>:</p><p><img src="assets/worm.jpg" alt="Original"/></p><p><strong>Segmented Image with labels replaced by their intensity means:</strong></p><p><img src="assets/worm_seg.jpg" alt="SegmentedImage"/></p><h4 id="Unseeded-Region-Growing"><a class="docs-heading-anchor" href="#Unseeded-Region-Growing">Unseeded Region Growing</a><a id="Unseeded-Region-Growing-1"></a><a class="docs-heading-anchor-permalink" href="#Unseeded-Region-Growing" title="Permalink"></a></h4><p>This algorithm is similar to <a href="#Seeded-Region-Growing">Seeded Region Growing</a> but does not require any prior information about the seed points. The segmentation process initializes with region <span>$A_1$</span> containing a single pixel of the image. Let an intermediate state of the algorithm consist of a set of identified regions <span>$A_1, A_2, ..., A_n$</span>. Let <span>$T$</span> be the set of all unallocated pixels which borders at least one of these regions. The growing process involves selecting a point <span>$z \in T$</span> and region <span>$A_j$</span> where <span>$j \in [ \, 1,n ] \,$</span> such that</p><p class="math-container">\[\delta ( \, z, A_j ) \, = min_{x \in T, k \in [ \, 1,n ] \, } \{ \delta ( \, x, A_k ) \, \}\]</p><p>where <span>$\delta ( \, x, A_i ) \, = | img ( \, x ) \, - mean_{y \in A_i} [ \, img ( \, y ) \, ] \, |$</span></p><p>If <span>$\delta ( \, z, A_j ) \,$</span> is less than <code>threshold</code> then the pixel <code>z</code> is added to <span>$A_j$</span>. Otherwise we choose the most similar region <span>$\alpha$</span> such that</p><p class="math-container">\[\alpha = argmin_{A_k} \{ \delta ( \, z, A_k) \, \}\]</p><p>If <span>$\delta ( \, z, \alpha ) \,$</span> is less than <code>threshold</code> then the pixel <code>z</code> is added to <span>$\alpha$</span>. If neither of the two conditions is satisfied, then the pixel is assigned a new region <span>$A_{n+1}$</span>. After assignment of <span>$z$</span>, we update the statistic of the assigned region. The algorithm halts when all the pixels have been assigned to some region.</p><p><code>unseeded_region_growing</code> requires the image <code>img</code> and <code>threshold</code> as its parameters.</p><h6 id="Demo-3"><a class="docs-heading-anchor" href="#Demo-3">Demo</a><a class="docs-heading-anchor-permalink" href="#Demo-3" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; using ImageSegmentation, Images
 
 julia&gt; img = load(&quot;src/pkgs/segmentation/assets/tree.jpg&quot;);
 
 julia&gt; seg = unseeded_region_growing(img, 0.05) # here 0.05 is the threshold
 Segmented Image with:
-  labels map: 320×480 Array{Int64,2}
+  labels map: 320×480 Matrix{Int64}
   number of labels: 698</code></pre><table><tr><th style="text-align: right">Threshold</th><th style="text-align: right">Output</th><th style="text-align: right">Compression percentage</th></tr><tr><td style="text-align: right">Original <a href="http://maxpixel.freegreatpicture.com/static/photo/1x/Plant-Wood-Tissue-Leaves-Nature-Green-Tree-2387626.jpg">(source)</a></td><td style="text-align: right"><img src="assets/tree.jpg" alt="tree"/></td><td style="text-align: right">0 %</td></tr><tr><td style="text-align: right">0.05</td><td style="text-align: right"><img src="assets/tree_seg1.jpg" alt="tree_seg1"/></td><td style="text-align: right">60.63%</td></tr><tr><td style="text-align: right">0.1</td><td style="text-align: right"><img src="assets/tree_seg2.jpg" alt="tree_seg2"/></td><td style="text-align: right">71.27%</td></tr><tr><td style="text-align: right">0.2</td><td style="text-align: right"><img src="assets/tree_seg3.jpg" alt="tree_seg3"/></td><td style="text-align: right">79.96%</td></tr></table><h4 id="Felzenswalb&#39;s-Region-Merging-Algorithm"><a class="docs-heading-anchor" href="#Felzenswalb&#39;s-Region-Merging-Algorithm">Felzenswalb&#39;s Region Merging Algorithm</a><a id="Felzenswalb&#39;s-Region-Merging-Algorithm-1"></a><a class="docs-heading-anchor-permalink" href="#Felzenswalb&#39;s-Region-Merging-Algorithm" title="Permalink"></a></h4><p>This algorithm operates on a Region Adjacency Graph (RAG). Each pixel/region is a node in the graph and adjacent pixels/regions have edges between them with weight measuring the dissimilarity between pixels/regions. The algorithm repeatedly merges similar regions till we get the final segmentation. It efficiently computes oversegmented “superpixels” in an image. The function can be directly called with an image (the implementation internally creates a RAG of the image first and then proceeds).</p><h6 id="Demo-4"><a class="docs-heading-anchor" href="#Demo-4">Demo</a><a class="docs-heading-anchor-permalink" href="#Demo-4" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; using Images, ImageSegmentation, TestImages
 
 julia&gt; img = Gray.(testimage(&quot;house&quot;));
 
 julia&gt; segments = felzenszwalb(img, 300, 100) # k=300 (the merging threshold), min_size = 100 (smallest number of pixels/region)
 Segmented Image with:
-  labels map: 512×512 Array{Int64,2}
+  labels map: 512×512 Matrix{Int64}
   number of labels: 11</code></pre><p>Here let&#39;s visualize segmentation by creating an image with each label replaced by a random color:</p><pre><code class="language-julia">function get_random_color(seed)
     Random.seed!(seed)
     rand(RGB{N0f8})
@@ -99,20 +99,20 @@ julia&gt; img = imresize(img, (128, 128));
 
 julia&gt; segments = meanshift(img, 16, 8/255) # parameters are smoothing radii: spatial=16, intensity-wise=8/255
 Segmented Image with:
-  labels map: 128×128 Array{Int64,2}
+  labels map: 128×128 Matrix{Int64}
   number of labels: 44</code></pre><p><img src="assets/small_house.jpg" alt="img1"/> <img src="assets/meanshift.jpg" alt="img2"/></p><h4 id="Fast-Scanning"><a class="docs-heading-anchor" href="#Fast-Scanning">Fast Scanning</a><a id="Fast-Scanning-1"></a><a class="docs-heading-anchor-permalink" href="#Fast-Scanning" title="Permalink"></a></h4><p>Fast scanning algorithm segments the image by scanning it once and comparing each pixel to its upper and left neighbor. The algorithm starts from the first pixel and assigns it to a new segment <span>$A_1$</span>. Label count <code>lc</code> is assigned 1. Then it starts a column-wise traversal of the image and for every pixel, it computes the difference measure <code>diff_fn</code> between the pixel and its left neighbor, say <span>$\delta_{l}$</span> and between the pixel and its top neighbor, say <span>$\delta_{t}$</span>. Four cases arise:</p><ol><li><span>$\delta_{l}$</span> &gt;= <code>threshold</code> and <span>$\delta_{t}$</span> &lt; <code>threshold</code> : We can say that the point has similar intensity to that its top neighbor. Hence, we assign the point to the segment that contains its top neighbor.</li><li><span>$\delta_{l}$</span> &lt; <code>threshold</code> and <span>$\delta_{t}$</span> &gt;= <code>threshold</code> : Similar to case 1, we assign the point to the segment that contains its left neighbor.</li><li><span>$\delta_{l}$</span> &gt;= <code>threshold</code> and <span>$\delta_{t}$</span> &gt;= <code>threshold</code> : Point is significantly different from its top and left neighbors and is assigned a new label <span>$A_{lc+1}$</span> and <code>lc</code> is incremented.</li><li><span>$\delta_{l}$</span> &lt; <code>threshold</code> and <span>$\delta_{t}$</span> &lt; <code>threshold</code> : In this case, we merge the top and left semgents together and assign the point under consideration to this merged segment.</li></ol><p>This algorithm segments the image in just two passes (one for segmenting and other for merging), hence it is very fast and can be used in real time applications.</p><p><strong>Time Complexity:</strong> <span>$O(n)$</span> where <span>$n$</span> is the number of pixels</p><h6 id="Demo-6"><a class="docs-heading-anchor" href="#Demo-6">Demo</a><a class="docs-heading-anchor-permalink" href="#Demo-6" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; using ImageSegmentation, TestImages
 
 julia&gt; img = testimage(&quot;camera&quot;);
 
 julia&gt; seg = fast_scanning(img, 0.1)  # threshold = 0.1
 Segmented Image with:
-  labels map: 512×512 Array{Int64,2}
+  labels map: 512×512 Matrix{Int64}
   number of labels: 2538
 
 julia&gt; seg = prune_segments(seg, i-&gt;(segment_pixel_count(seg,i)&lt;50), (i,j)-&gt;(-segment_pixel_count(seg,j)))
 Segmented Image with:
-  labels map: 512×512 Array{Int64,2}
-  number of labels: 65</code></pre><p><strong>Original:</strong></p><p><img src="assets/camera.jpg" alt="Original"/></p><p><strong>Segmented Image:</strong></p><p><img src="assets/camera_seg.jpg" alt="SegmentedImage"/></p><h4 id="Region-Splitting-using-RegionTrees"><a class="docs-heading-anchor" href="#Region-Splitting-using-RegionTrees">Region Splitting using RegionTrees</a><a id="Region-Splitting-using-RegionTrees-1"></a><a class="docs-heading-anchor-permalink" href="#Region-Splitting-using-RegionTrees" title="Permalink"></a></h4><p>This algorithm follows the divide and conquer methodology. If the input image is homogeneous then nothing is to be done. In the other case, the image is split into two across every dimension and the smaller parts are segmented recursively. This procedure generates a region tree which can be used to create a segmented image.</p><p><strong>Time Complexity:</strong> <span>$O(n*log(n))$</span> where <span>$n$</span> is the number of pixels</p><h6 id="Demo-7"><a class="docs-heading-anchor" href="#Demo-7">Demo</a><a class="docs-heading-anchor-permalink" href="#Demo-7" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; using TestImages, ImageSegmentation
+  labels map: 512×512 Matrix{Int64}
+  number of labels: 65</code></pre><p><strong>Original:</strong></p><p><img src="assets/camera.jpg" alt="Original"/></p><p><strong>Segmented Image:</strong></p><p><img src="assets/camera_seg.jpg" alt="SegmentedImage"/></p><h4 id="Region-Splitting-using-RegionTrees"><a class="docs-heading-anchor" href="#Region-Splitting-using-RegionTrees">Region Splitting using RegionTrees</a><a id="Region-Splitting-using-RegionTrees-1"></a><a class="docs-heading-anchor-permalink" href="#Region-Splitting-using-RegionTrees" title="Permalink"></a></h4><p>This algorithm follows the divide and conquer methodology. If the input image is homogeneous then nothing is to be done. In the other case, the image is split into two across every dimension and the smaller parts are segmented recursively. This procedure generates a region tree which can be used to create a segmented image.</p><p><strong>Time Complexity:</strong> <span>$O(n*log(n))$</span> where <span>$n$</span> is the number of pixels</p><h6 id="Demo-7"><a class="docs-heading-anchor" href="#Demo-7">Demo</a><a class="docs-heading-anchor-permalink" href="#Demo-7" title="Permalink"></a></h6><pre><code class="language-julia">julia&gt; using TestImages, ImageSegmentation
 
 julia&gt; img = testimage(&quot;lena_gray&quot;);
 
@@ -124,7 +124,7 @@ homogeneous (generic function with 1 method)
 
 julia&gt; seg = region_splitting(img, homogeneous)
 Segmented Image with:
-  labels map: 256×256 Array{Int64,2}
+  labels map: 256×256 Matrix{Int64}
   number of labels: 8836</code></pre><p><strong>Original:</strong></p><p><img src="assets/lena.jpg" alt="Original"/></p><p><strong>Segmented Image with labels replaced by their intensity means:</strong></p><p><img src="assets/lena_seg.jpg" alt="SegmentedImage"/></p><h4 id="Fuzzy-C-means"><a class="docs-heading-anchor" href="#Fuzzy-C-means">Fuzzy C-means</a><a id="Fuzzy-C-means-1"></a><a class="docs-heading-anchor-permalink" href="#Fuzzy-C-means" title="Permalink"></a></h4><p>Fuzzy C-means clustering is widely used for unsupervised image segmentation. It is an iterative algorithm which tries to minimize the cost function:</p><p class="math-container">\[J = \displaystyle\sum_{i=1}^{N} \sum_{j=1}^{C} \delta_{ij} \| x_{i} - c_{j} \|^2\]</p><p>Unlike K-means, it allows pixels to belong to two or more clusters. It is widely used for medical imaging like in the soft segmentation of brain tissue model. Note that both Fuzzy C-means and K-means have an element of randomness, and it&#39;s possible to get results that vary considerably from one run to the next.</p><p><strong>Time Complexity:</strong> <span>$O(n*C^2*iter)$</span> where <span>$n$</span> is the number of pixels, <span>$C$</span> is number of clusters and <span>$iter$</span> is the number of iterations.</p><h6 id="Demo-8"><a class="docs-heading-anchor" href="#Demo-8">Demo</a><a class="docs-heading-anchor-permalink" href="#Demo-8" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; using ImageSegmentation, Images
 
 julia&gt; img = load(&quot;src/pkgs/segmentation/assets/flower.jpg&quot;);
@@ -142,7 +142,7 @@ julia&gt; markers = label_components(dist .&lt; -15);
 
 julia&gt; segments = watershed(dist, markers)
 Segmented Image with:
-  labels map: 312×252 Array{Int64,2}
+  labels map: 312×252 Matrix{Int64}
   number of labels: 24
 
 julia&gt; imshow(map(i-&gt;get_random_color(i), labels_map(segments)) .* (1 .-bw))       #shows segmented image</code></pre><table><tr><th style="text-align: center">Original Image</th><th style="text-align: center">Thresholded Image</th></tr><tr><td style="text-align: center"><img src="assets/water_coins.jpg" alt="img1"/></td><td style="text-align: center"><img src="assets/coins2.jpg" alt="img1"/></td></tr></table><table><tr><th style="text-align: center">Inverted Distance Transform Image</th><th style="text-align: center">Markers</th></tr><tr><td style="text-align: center"><img src="assets/coins3.jpg" alt="img1"/></td><td style="text-align: center"><img src="assets/coins4.jpg" alt="img1"/></td></tr></table><table><tr><th style="text-align: center">Segmented Image</th></tr><tr><td style="text-align: center"><img src="assets/watershed.jpg" alt="img2"/></td></tr></table><h2 id="Some-helpful-functions"><a class="docs-heading-anchor" href="#Some-helpful-functions">Some helpful functions</a><a id="Some-helpful-functions-1"></a><a class="docs-heading-anchor-permalink" href="#Some-helpful-functions" title="Permalink"></a></h2><h4 id="Creating-a-Region-Adjacency-Graph-(RAG)"><a class="docs-heading-anchor" href="#Creating-a-Region-Adjacency-Graph-(RAG)">Creating a Region Adjacency Graph (RAG)</a><a id="Creating-a-Region-Adjacency-Graph-(RAG)-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-a-Region-Adjacency-Graph-(RAG)" title="Permalink"></a></h4><p>A region adjacency graph can directly be constructed from a <code>SegmentedImage</code> using the <code>region_adjacency_graph</code> function. Each segment is denoted by a vertex and edges are constructed between adjacent segments. The output is a tuple of <code>SimpleWeightedGraph</code> and a <code>Dict(label=&gt;vertex)</code> with weights assigned according to <code>weight_fn</code>.</p><pre><code class="language-julia-repl">julia&gt; using ImageSegmentation, Distances, TestImages
@@ -165,7 +165,7 @@ julia&gt; function homogeneous(img)
 homogeneous (generic function with 1 method)
 
 julia&gt; t = region_tree(img, homogeneous)        # `img` is an image
-Cell: RegionTrees.HyperRectangle{2,Float64}([1.0, 1.0], [300.0, 300.0])</code></pre><p>For more information regarding <code>RegionTrees</code>, see <a href="https://github.com/rdeits/RegionTrees.jl#regiontreesjl-quadtrees-octrees-and-their-n-dimensional-cousins">this</a>.</p><h4 id="Pruning-unnecessary-segments"><a class="docs-heading-anchor" href="#Pruning-unnecessary-segments">Pruning unnecessary segments</a><a id="Pruning-unnecessary-segments-1"></a><a class="docs-heading-anchor-permalink" href="#Pruning-unnecessary-segments" title="Permalink"></a></h4><p>All the unnecessary segments can be easily removed from a <code>SegmentedImage</code> using <code>prune_segments</code>. It removes a segment by replacing it with the neighbor which has the least value of <code>diff_fn</code>. A list of the segments to be removed can be supplied. Alternately, a function can be supplied that returns <code>true</code> for the labels that must be removed.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>The resultant <code>SegmentedImage</code> might have the different labels compared to the original <code>SegmentedImage</code>.</p></div></div><p>For this example and the next one (in <a href="#Removing-a-segment">Removing a segment</a>), a sample <code>SegmentedImage</code> has been used. It can be generated as:</p><pre><code class="language-julia-repl">julia&gt; img = fill(1, (4, 4));
+Cell: RegionTrees.HyperRectangle{2, Float64}([1.0, 1.0], [300.0, 300.0])</code></pre><p>For more information regarding <code>RegionTrees</code>, see <a href="https://github.com/rdeits/RegionTrees.jl#regiontreesjl-quadtrees-octrees-and-their-n-dimensional-cousins">this</a>.</p><h4 id="Pruning-unnecessary-segments"><a class="docs-heading-anchor" href="#Pruning-unnecessary-segments">Pruning unnecessary segments</a><a id="Pruning-unnecessary-segments-1"></a><a class="docs-heading-anchor-permalink" href="#Pruning-unnecessary-segments" title="Permalink"></a></h4><p>All the unnecessary segments can be easily removed from a <code>SegmentedImage</code> using <code>prune_segments</code>. It removes a segment by replacing it with the neighbor which has the least value of <code>diff_fn</code>. A list of the segments to be removed can be supplied. Alternately, a function can be supplied that returns <code>true</code> for the labels that must be removed.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>The resultant <code>SegmentedImage</code> might have the different labels compared to the original <code>SegmentedImage</code>.</p></div></div><p>For this example and the next one (in <a href="#Removing-a-segment">Removing a segment</a>), a sample <code>SegmentedImage</code> has been used. It can be generated as:</p><pre><code class="language-julia-repl">julia&gt; img = fill(1, (4, 4));
 
 julia&gt; img[3:4,:] .= 2;
 
@@ -174,14 +174,14 @@ julia&gt; img[1:2,3:4] .= 3;
 julia&gt; seg = fast_scanning(img, 0.5);
 
 julia&gt; labels_map(seg)
-4×4 Array{Int64,2}:
+4×4 Matrix{Int64}:
  1  1  3  3
  1  1  3  3
  2  2  2  2
  2  2  2  2
 
 julia&gt; seg.image_indexmap
-4×4 Array{Int64,2}:
+4×4 Matrix{Int64}:
  1  1  3  3
  1  1  3  3
  2  2  2  2
@@ -192,12 +192,12 @@ julia&gt; diff_fn(rem_label, neigh_label) = segment_pixel_count(seg,rem_label) -
 julia&gt; new_seg = prune_segments(seg, [3], diff_fn);
 
 julia&gt; labels_map(new_seg)
-4×4 Array{Int64,2}:
+4×4 Matrix{Int64}:
  1  1  2  2
  1  1  2  2
  2  2  2  2
  2  2  2  2</code></pre><h4 id="Removing-a-segment"><a class="docs-heading-anchor" href="#Removing-a-segment">Removing a segment</a><a id="Removing-a-segment-1"></a><a class="docs-heading-anchor-permalink" href="#Removing-a-segment" title="Permalink"></a></h4><p>If only one segment is to be removed, then <code>rem_segment!</code> can be used. It removes a segment from a <code>SegmentedImage</code> in place, replacing it with the neighbouring segment having least <code>diff_fn</code> value.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>If multiple segments need to be removed then <a href="../../function_reference/#ImageSegmentation.prune_segments"><code>prune_segments</code></a> should be preferred as it is much more time efficient than calling <code>rem_segment!</code> multiple times.</p></div></div><pre><code class="language-julia-repl">julia&gt; seg.image_indexmap
-4×4 Array{Int64,2}:
+4×4 Matrix{Int64}:
  1  1  3  3
  1  1  3  3
  2  2  2  2
@@ -208,8 +208,8 @@ julia&gt; diff_fn(rem_label, neigh_label) = segment_pixel_count(seg,rem_label) -
 julia&gt; rem_segment!(seg, 3, diff_fn);
 
 julia&gt; labels_map(new_seg)
-4×4 Array{Int64,2}:
+4×4 Matrix{Int64}:
  1  1  2  2
  1  1  2  2
  2  2  2  2
- 2  2  2  2</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../metadata/">« ImageMetaData.jl</a><a class="docs-footer-nextpage" href="../transformations/">ImageTransformations.jl »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 15 April 2021 19:10">Thursday 15 April 2021</span>. Using Julia version 1.6.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ 2  2  2  2</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../metadata/">« ImageMetaData.jl</a><a class="docs-footer-nextpage" href="../transformations/">ImageTransformations.jl »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 25 April 2021 19:34">Sunday 25 April 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
