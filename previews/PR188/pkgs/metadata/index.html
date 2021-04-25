@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>ImageMetaData.jl · JuliaImages</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../democards/gridtheme.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="JuliaImages logo"/></a><div class="docs-package-name"><span class="docs-autofit">JuliaImages</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../install/">Getting started</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/quickstart/">Quickstart</a></li><li><a class="tocitem" href="../../tutorials/arrays_colors/">Arrays, Numbers, and Colors</a></li><li><a class="tocitem" href="../../tutorials/conversions_views/">Conversions vs. views</a></li><li><a class="tocitem" href="../../tutorials/indexing/">Arrays: more advanced indexing</a></li></ul></li><li><span class="tocitem">Packages</span><ul><li><a class="tocitem" href="../">Introduction</a></li><li><a class="tocitem" href="../axes/">ImageAxes.jl</a></li><li class="is-active"><a class="tocitem" href>ImageMetaData.jl</a><ul class="internal"><li><a class="tocitem" href="#Introduction"><span>Introduction</span></a></li></ul></li><li><a class="tocitem" href="../segmentation/">ImageSegmentation.jl</a></li><li><a class="tocitem" href="../transformations/">ImageTransformations.jl</a></li><li><a class="tocitem" href="../features/">ImageFeatures.jl</a></li></ul></li><li><a class="tocitem" href="../../examples/">Demos</a></li><li><a class="tocitem" href="../../function_reference/">References</a></li><li><a class="tocitem" href="../../api_comparison/">Comparison with other image processing frameworks</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Packages</a></li><li class="is-active"><a href>ImageMetaData.jl</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>ImageMetaData.jl</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaImages/juliaimages.github.io/blob/source/docs/src/pkgs/metadata/index.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="ImageMetadata.jl"><a class="docs-heading-anchor" href="#ImageMetadata.jl">ImageMetadata.jl</a><a id="ImageMetadata.jl-1"></a><a class="docs-heading-anchor-permalink" href="#ImageMetadata.jl" title="Permalink"></a></h1><p>ImageMetadata (a package incorporated into Images) allows you to add metadata to images: for example, the date and time at which it was collected, identifiers for the location or subject, etc. This metadata is stored as a dictionary, and the <code>ImageMeta</code> type combines properties of arrays and <code>Dict</code>.</p><h2 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h2><p>You typically create an <code>ImageMeta</code> using keyword arguments:</p><pre><code class="language-julia-repl">julia&gt; using Colors, ImageMetadata, Dates
+
+julia&gt; img = ImageMeta(fill(RGB(1,0,0), 3, 2), date=Date(2016, 7, 31), time=&quot;high noon&quot;)
+RGB ImageMeta with:
+  data: 3×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}
+  properties:
+    date: 2016-07-31
+    time: high noon</code></pre><p>You can then index elements of <code>img</code> like this:</p><pre><code class="language-julia-repl">julia&gt; img[1,2]
+RGB{N0f8}(1.0,0.0,0.0)</code></pre><p>and access and set properties like this:</p><pre><code class="language-julia-repl">julia&gt; img.time
+&quot;high noon&quot;
+
+julia&gt; img.time = &quot;evening&quot;
+&quot;evening&quot;
+
+julia&gt; img
+RGB ImageMeta with:
+  data: 3×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}
+  properties:
+    date: 2016-07-31
+    time: evening</code></pre><p>You can extract the data matrix with <code>arraydata(img)</code>:</p><pre><code class="language-julia-repl">julia&gt; arraydata(img)
+3×2 Array{RGB{N0f8},2} with eltype RGB{FixedPointNumbers.N0f8}:
+ RGB{N0f8}(1.0,0.0,0.0)  RGB{N0f8}(1.0,0.0,0.0)
+ RGB{N0f8}(1.0,0.0,0.0)  RGB{N0f8}(1.0,0.0,0.0)
+ RGB{N0f8}(1.0,0.0,0.0)  RGB{N0f8}(1.0,0.0,0.0)</code></pre><p>and the properties dictionary with <code>properties</code>:</p><pre><code class="language-julia-repl">julia&gt; properties(img)
+Dict{Symbol, Any} with 2 entries:
+  :date =&gt; Date(&quot;2016-07-31&quot;)
+  :time =&gt; &quot;high noon&quot;</code></pre><p>Properties are not accessed or modified by most of Images&#39; algorithms–-the traits that most affect processing are encoded through Julia&#39;s type system.  However, functions that receive an <code>ImageMeta</code> should return an <code>ImageMeta</code> when appropriate. Naturally, in your own code it&#39;s fine to use properties to your advantage for custom tasks.</p><p>If you index a scalar location (a single pixel), <code>img[i,j,...]</code> will return just the value of that pixel. But if you index a range, you get another <code>ImageMeta</code>:</p><pre><code class="language-julia-repl">julia&gt; c = img[1:2, 1:2]
+RGB ImageMeta with:
+  data: 2×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}
+  properties:
+    date: 2016-07-31
+    time: high noon</code></pre><p>This copies both the data (just the relevant portions) and the properties dictionary. In contrast,</p><pre><code class="language-julia-repl">julia&gt; v = view(img, 1:2, 1:2)
+RGB ImageMeta with:
+  data: 2×2 view(::Array{RGB{N0f8},2}, 1:2, 1:2) with eltype RGB{N0f8}
+  properties:
+    date: 2016-07-31
+    time: high noon</code></pre><p>shares both the data and the properties with the original image <code>img</code>. Modifying values or properties in <code>c</code> has no impact on <code>img</code>, but modifying values or properties in <code>v</code> does.</p><h3 id="copyproperties/shareproperties"><a class="docs-heading-anchor" href="#copyproperties/shareproperties">copyproperties/shareproperties</a><a id="copyproperties/shareproperties-1"></a><a class="docs-heading-anchor-permalink" href="#copyproperties/shareproperties" title="Permalink"></a></h3><p>Two convenient ways to construct a new image with the &quot;same&quot; properties are <code>copyproperties</code> (makes a copy of the properties dictionary) and <code>shareproperties</code> (shares the properties dictionary).</p><p>Incidentally, <code>similar</code> makes a copy of the properties dictionary.</p><h3 id="spatialproperties"><a class="docs-heading-anchor" href="#spatialproperties">spatialproperties</a><a id="spatialproperties-1"></a><a class="docs-heading-anchor-permalink" href="#spatialproperties" title="Permalink"></a></h3><p>Occasionally you may have a property that is linked to the spatial axes of the image. In such cases, one source for potential confusion is <code>permutedims</code>, which swaps the order of the dimensions in the array: if the order is not also swapped in the appropriate properties, chaos could result.</p><p>You can declare that certain properties are coupled to spatial axes using <code>&quot;spatialproperties&quot;</code>:</p><pre><code class="language-julia-repl">julia&gt; using ImageMetadata
+
+julia&gt; A = reshape(1:15, 3, 5)
+3×5 reshape(::UnitRange{Int64}, 3, 5) with eltype Int64:
+ 1  4  7  10  13
+ 2  5  8  11  14
+ 3  6  9  12  15
+
+julia&gt; img = ImageMeta(A, spatialproperties=Set([:maxsum]), maxsum=[maximum(sum(A,dims=1)), maximum(sum(A,dims=2))])
+Int64 ImageMeta with:
+  data: 3×5 reshape(::UnitRange{Int64}, 3, 5) with eltype Int64
+  properties:
+    maxsum: [42, 45]
+    spatialproperties: Set([:maxsum])
+
+julia&gt; imgp = permutedims(img, (2,1))
+Int64 ImageMeta with:
+  data: 5×3 Matrix{Int64}
+  properties:
+    maxsum: [45, 42]
+    spatialproperties: Set([:maxsum])
+
+julia&gt; maximum(sum(imgp, dims=1))
+45</code></pre><p>It&#39;s not possible to anticipate all the possible transformations that might be necessary, but at least simple swaps are handled automatically.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../axes/">« ImageAxes.jl</a><a class="docs-footer-nextpage" href="../segmentation/">ImageSegmentation.jl »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 25 April 2021 19:11">Sunday 25 April 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
