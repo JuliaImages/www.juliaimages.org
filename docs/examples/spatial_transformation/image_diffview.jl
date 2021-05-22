@@ -30,8 +30,10 @@ plain_diffview = @. img - img_r
 nothing #hide #md
 
 # For gray images, a fancy trick is to fill each image into different RGB channels
-# and make a RGB view
-RGB_diffview = colorview(RGB, channelview(img), channelview(img_r), fill(0., size(img)))
+# and make a RGB view. [`zeroarray`](@ref ImageCore.zeroarray) is a constant which
+# serves as a placeholder to create a (virtual) all-zeros array of size that matches
+# the other arguments.
+RGB_diffview = colorview(RGB, channelview(img), channelview(img_r), zeroarray)
 nothing #hide #md
 
 # or convert the RGB view back to Gray image after that
