@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Conversions vs. views · JuliaImages</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../democards/gridtheme.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="JuliaImages logo"/></a><div class="docs-package-name"><span class="docs-autofit">JuliaImages</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../install/">Getting started</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../quickstart/">Quickstart</a></li><li><a class="tocitem" href="../arrays_colors/">Arrays, Numbers, and Colors</a></li><li class="is-active"><a class="tocitem" href>Conversions vs. views</a><ul class="internal"><li><a class="tocitem" href="#Sharing-memory:-an-introduction-to-views"><span>Sharing memory: an introduction to views</span></a></li><li><a class="tocitem" href="#Views-for-&quot;converting&quot;-between-fixed-point-and-raw-representations"><span>Views for &quot;converting&quot; between fixed-point and raw representations</span></a></li><li><a class="tocitem" href="#Color-separations:-views-for-converting-between-numbers-and-colors"><span>Color separations: views for converting between numbers and colors</span></a></li><li><a class="tocitem" href="#Using-colorview-to-make-color-overlays"><span>Using colorview to make color overlays</span></a></li><li><a class="tocitem" href="#Changing-the-order-of-dimensions"><span>Changing the order of dimensions</span></a></li><li><a class="tocitem" href="#Adding-padding"><span>Adding padding</span></a></li><li><a class="tocitem" href="#StackedViews"><span>StackedViews</span></a></li><li><a class="tocitem" href="#Decoupling-views-from-the-parent-memory"><span>Decoupling views from the parent memory</span></a></li><li><a class="tocitem" href="#Composing-views-(and-compact-summaries)"><span>Composing views (and compact summaries)</span></a></li></ul></li><li><a class="tocitem" href="../indexing/">Arrays: more advanced indexing</a></li></ul></li><li><span class="tocitem">Packages</span><ul><li><a class="tocitem" href="../../pkgs/">Introduction</a></li><li><a class="tocitem" href="../../pkgs/axes/">ImageAxes.jl</a></li><li><a class="tocitem" href="../../pkgs/metadata/">ImageMetaData.jl</a></li><li><a class="tocitem" href="../../pkgs/segmentation/">ImageSegmentation.jl</a></li><li><a class="tocitem" href="../../pkgs/transformations/">ImageTransformations.jl</a></li><li><a class="tocitem" href="../../pkgs/features/">ImageFeatures.jl</a></li></ul></li><li><a class="tocitem" href="../../examples/">Demos</a></li><li><a class="tocitem" href="../../function_reference/">References</a></li><li><a class="tocitem" href="../../api_comparison/">Comparison with other image processing frameworks</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Conversions vs. views</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Conversions vs. views</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaImages/juliaimages.github.io/blob/source/docs/src/tutorials/conversions_views.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="page_conversions_views"><a class="docs-heading-anchor" href="#page_conversions_views">Conversions vs. views</a><a id="page_conversions_views-1"></a><a class="docs-heading-anchor-permalink" href="#page_conversions_views" title="Permalink"></a></h1><h2 id="Sharing-memory:-an-introduction-to-views"><a class="docs-heading-anchor" href="#Sharing-memory:-an-introduction-to-views">Sharing memory: an introduction to views</a><a id="Sharing-memory:-an-introduction-to-views-1"></a><a class="docs-heading-anchor-permalink" href="#Sharing-memory:-an-introduction-to-views" title="Permalink"></a></h2><p>In <a href="../arrays_colors/#page_arrays_colors">Arrays, Numbers, and Colors</a> we discussed how one can convert the element type of an array <code>a = [1,2,3,4]</code> using a syntax like <code>Float64.(a)</code>. You might be curious what affect, if any, <code>Int.(a)</code> has:</p><pre><code class="language-julia-repl">julia&gt; a = [1,2,3,4]
+4-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 4
+
+julia&gt; b = Int.(a)
+4-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 4</code></pre><p>There&#39;s certainly no obvious change, and as you&#39;d expect <code>b == a</code> returns <code>true</code>.  Beyond having equal size and elements, there&#39;s a more extensive notion of &quot;sameness&quot;: do <code>a</code> and <code>b</code> refer to the <em>same</em> storage area in memory?  We can test that in the following ways:</p><pre><code class="language-julia-repl">julia&gt; a === b   # note: 3 equal signs!
+false</code></pre><p>or more generally by setting a value and seeing whether the change is reflected in the other:</p><pre><code class="language-julia-repl">julia&gt; b[1] = 5
+5
+
+julia&gt; b
+4-element Vector{Int64}:
+ 5
+ 2
+ 3
+ 4
+
+julia&gt; a
+4-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 4</code></pre><p>Since the types of <code>a</code> and <code>b</code> are identical, both tests tell us that <code>a</code> and <code>b</code> are independent objects, even if they (initially) had the same values.</p><p>This occurs because <code>f.(a)</code> (which calls the function <code>broadcast(f, a)</code>) always allocates a new array to return its values. However, not all functions operate this way. One good example is <code>view</code>:</p><pre><code class="language-julia-repl">julia&gt; v = view(a, :)
+4-element view(::Vector{Int64}, :) with eltype Int64:
+ 1
+ 2
+ 3
+ 4</code></pre><p><code>v</code> and <code>a</code> have the same values, but again they are distinct objects:</p><pre><code class="language-julia-repl">julia&gt; v == a
+true
+
+julia&gt; v === a
+false</code></pre><p>However, <strong>they share the same memory</strong>:</p><pre><code class="language-julia-repl">julia&gt; v[1] = 10
+10
+
+julia&gt; v
+4-element view(::Vector{Int64}, :) with eltype Int64:
+ 10
+  2
+  3
+  4
+
+julia&gt; a
+4-element Vector{Int64}:
+ 10
+  2
+  3
+  4</code></pre><p>Consequently, <code>v</code> is a &quot;view&quot; of the values stored in <code>a</code>.  While this usage of <code>view</code> is trivial, more generally it can be used to select a rectangular region of interest, which is a common operation in image processing; this region is selected without copying any data, and any manipulations of the values within this region are reflected in the original (parent) array. See the documentation on <code>view</code>, by typing <code>?view</code>, for more information.</p><p><code>view</code> is not the only function with this property: another good example is <code>reshape</code>, which can be used to change the dimensions of an array:</p><pre><code class="language-julia-repl">julia&gt; r = reshape(a, 2, 2)
+2×2 Matrix{Int64}:
+ 10  3
+  2  4
+
+julia&gt; r[1,2] = 7
+7
+
+julia&gt; r
+2×2 Matrix{Int64}:
+ 10  7
+  2  4
+
+julia&gt; a
+4-element Vector{Int64}:
+ 10
+  2
+  7
+  4</code></pre><p>Notice that the return type of <code>reshape</code> is just an <code>Array</code>, one which happens to be serving as a view of <code>a</code>. However, some inputs cannot be represented as a view with an <code>Array</code>. For example:</p><pre><code class="language-julia-repl">julia&gt; r = reshape(1:15, 3, 5)
+3×5 reshape(::UnitRange{Int64}, 3, 5) with eltype Int64:
+ 1  4  7  10  13
+ 2  5  8  11  14
+ 3  6  9  12  15</code></pre><p>A <code>UnitRange</code> is represented compactly–-storing only the starting and stopping values–-so there is no memory location that can be referenced to access all values. In such cases, <code>reshape</code> returns a <code>ReshapedArray</code>, which is a generic &quot;view type&quot; that handles reshaping of any kind of <code>AbstractArray</code>.</p><p>The output of both <code>view</code> and <code>reshape</code> are <em>always</em> views: make a change in either the parent or the view, and the change is reflected in the other.</p><h2 id="Views-for-&quot;converting&quot;-between-fixed-point-and-raw-representations"><a class="docs-heading-anchor" href="#Views-for-&quot;converting&quot;-between-fixed-point-and-raw-representations">Views for &quot;converting&quot; between fixed-point and raw representations</a><a id="Views-for-&quot;converting&quot;-between-fixed-point-and-raw-representations-1"></a><a class="docs-heading-anchor-permalink" href="#Views-for-&quot;converting&quot;-between-fixed-point-and-raw-representations" title="Permalink"></a></h2><p><a href="../arrays_colors/#page_arrays_colors">Arrays, Numbers, and Colors</a> also introduced the fixed-point numbers used in some representations of color (or grayscale) information. If you want to switch representation, you can use the <code>reinterpret</code> function:</p><pre><code class="language-julia-repl">julia&gt; using FixedPointNumbers
+
+julia&gt; x = 0.5N0f8
+0.502N0f8
+
+julia&gt; y = reinterpret(x)  # alternatively, use: reinterpret(UInt8, x)
+0x80
+
+julia&gt; reinterpret(N0f8, y)
+0.502N0f8</code></pre><p>You can apply this to arrays:</p><pre><code class="language-julia-repl">julia&gt; a = [0.2N0f8, 0.8N0f8]
+2-element Array{N0f8,1} with eltype N0f8:
+ 0.2N0f8
+ 0.8N0f8
+
+julia&gt; b = reinterpret.(a)
+2-element Vector{UInt8}:
+ 0x33
+ 0xcc</code></pre><p>Because of the <code>f.(a)</code> call, <code>b</code> does not share memory with <code>a</code>:</p><pre><code class="language-julia-repl">julia&gt; b[2] = 0xff
+0xff
+
+julia&gt; a
+2-element Array{N0f8,1} with eltype N0f8:
+ 0.2N0f8
+ 0.8N0f8</code></pre><p>Often this might not be a problem, but sometimes you might wish that these referenced the same underlying object.  For such situations, JuliaImages, through the <a href="https://github.com/JuliaImages/ImageCore.jl">ImageCore</a> package (which is bundled with Images), implements views that can perform this reinterpretation:</p><pre><code class="language-julia-repl">julia&gt; using Images
+
+julia&gt; v = rawview(a)
+2-element reinterpret(UInt8, ::Array{N0f8,1}):
+ 0x33
+ 0xcc
+
+julia&gt; v[2] = 0xff
+0xff
+
+julia&gt; a
+2-element Array{N0f8,1} with eltype N0f8:
+ 0.2N0f8
+ 1.0N0f8</code></pre><p>We can understand clearly from below code that <code>v</code> is an immutable object, or is just  a reference of <code>a</code>. It doesn&#39;t has a separate memory allocated to it:</p><pre><code class="language-julia-repl">julia&gt; a = [0.2N0f8,0.8N0f8]
+2-element Array{N0f8,1} with eltype N0f8:
+ 0.2N0f8
+ 0.8N0f8
+
+julia&gt; v = rawview(a)
+2-element reinterpret(UInt8, ::Array{N0f8,1}):
+ 0x33
+ 0xcc</code></pre><pre><code class="language-julia">julia&gt; pointer_from_objref(a) #function used to find address of an object
+Ptr{Nothing} @0x000000011cbb19f0
+
+julia&gt; pointer_from_objref(v) #v is just a immutable reference to a, no separate memory allocated to it.
+ERROR: pointer_from_objref cannot be used on immutable objects
+Stacktrace:
+ [1] error(s::String)
+   @ Base ./error.jl:33
+ [2] pointer_from_objref(x::Any)
+   @ Base ./pointer.jl:146
+ [3] top-level scope
+   @ none:1</code></pre><p>The opposite transformation is <code>normedview</code>:</p><pre><code class="language-julia-repl">julia&gt; c = [0x11, 0x22]
+2-element Vector{UInt8}:
+ 0x11
+ 0x22
+
+julia&gt; normedview(c)
+2-element reinterpret(N0f8, ::Vector{UInt8}):
+ 0.067N0f8
+ 0.133N0f8</code></pre><p><code>normedview</code> allows you to pass the interpreted type as the first argument, i.e., <code>normedview(N0f8, A)</code>, and indeed it&#39;s required to do so unless <code>A</code> has element type <code>UInt8</code>, in which case <code>normedview</code> assumes you want <code>N0f8</code>.</p><p>Like <code>reshape</code>, both <code>rawview</code> and <code>normedview</code> might return an <code>Array</code> or a more complicated type (a <code>ReinterpretArray</code>, or a <code>MappedArray</code> from the <a href="https://github.com/JuliaArrays/MappedArrays.jl">MappedArrays package</a>), depending on the types of the inputs.</p><h2 id="Color-separations:-views-for-converting-between-numbers-and-colors"><a class="docs-heading-anchor" href="#Color-separations:-views-for-converting-between-numbers-and-colors">Color separations: views for converting between numbers and colors</a><a id="Color-separations:-views-for-converting-between-numbers-and-colors-1"></a><a class="docs-heading-anchor-permalink" href="#Color-separations:-views-for-converting-between-numbers-and-colors" title="Permalink"></a></h2><p>In <a href="../arrays_colors/#page_arrays_colors">Arrays, Numbers, and Colors</a>, we pointed out that one can convert a numeric array to a grayscale array with <code>Gray.(a)</code>; the opposite transformation can be performed with <code>real.(b)</code>. Handling RGB colors is a little more complicated, because the dimensionality of the array changes. One approach is to use Julia&#39;s comprehensions:</p><pre><code class="language-julia-repl">julia&gt; a = reshape(collect(0.1:0.1:0.6), 3, 2)
+3×2 Matrix{Float64}:
+ 0.1  0.4
+ 0.2  0.5
+ 0.3  0.6
+
+julia&gt; c = [RGB(a[1,j], a[2,j], a[3,j]) for j = 1:2]
+2-element Array{RGB{Float64},1} with eltype RGB{Float64}:
+ RGB{Float64}(0.1,0.2,0.3)
+ RGB{Float64}(0.4,0.5,0.6)
+
+julia&gt; x = [getfield(c[j], i) for i = 1:3, j = 1:2]
+3×2 Matrix{Float64}:
+ 0.1  0.4
+ 0.2  0.5
+ 0.3  0.6</code></pre><p>While this approach works, it&#39;s not without flaws:</p><ul><li>this implementation relies on the two-dimensionality of <code>a</code>; a 3d array (producing a 2d color image) would need a different implementation</li><li>the use of <code>getfield</code> assumes that elements of <code>c</code> have fields and that they are in the order <code>r</code>, <code>g</code>, <code>b</code>. Given the large number of different representations of RGB supported by <a href="https://github.com/JuliaGraphics/ColorTypes.jl">ColorTypes</a>, neither of these assumptions is entirely safe.</li><li>it always makes a copy of the data</li></ul><p>To address these weaknesses, JuliaImages provides two complementary view function, <code>colorview</code> and <code>channelview</code>:</p><pre><code class="language-julia-repl">julia&gt; colv = colorview(RGB, a)
+2-element reinterpret(reshape, RGB{Float64}, ::Matrix{Float64}) with eltype RGB{Float64}:
+ RGB{Float64}(0.1,0.2,0.3)
+ RGB{Float64}(0.4,0.5,0.6)
+
+julia&gt; chanv = channelview(c)
+3×2 reinterpret(reshape, Float64, ::Array{RGB{Float64},1}) with eltype Float64:
+ 0.1  0.4
+ 0.2  0.5
+ 0.3  0.6</code></pre><p><code>colorview</code> and <code>channelview</code> <em>always</em> return a view of the original array.</p><h2 id="Using-colorview-to-make-color-overlays"><a class="docs-heading-anchor" href="#Using-colorview-to-make-color-overlays">Using colorview to make color overlays</a><a id="Using-colorview-to-make-color-overlays-1"></a><a class="docs-heading-anchor-permalink" href="#Using-colorview-to-make-color-overlays" title="Permalink"></a></h2><p>Another use for <code>colorview</code> is to combine multiple grayscale images into a single color image. For example:</p><pre><code class="language-julia">using Colors, Images
+r = range(0,stop=1,length=11)
+b = range(1,stop=0,length=11)
+img1d = colorview(RGB, r, zeroarray, b)
+
+# output
+
+11-element mappedarray(RGB{Float64}, ImageCore.extractchannels, ::StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}}, ::ImageCore.ZeroArray{Float64, 1, Base.OneTo{Int64}}, ::StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}}) with eltype RGB{Float64}:
+ RGB{Float64}(0.0,0.0,1.0)
+ RGB{Float64}(0.1,0.0,0.9)
+ RGB{Float64}(0.2,0.0,0.8)
+ RGB{Float64}(0.3,0.0,0.7)
+ RGB{Float64}(0.4,0.0,0.6)
+ RGB{Float64}(0.5,0.0,0.5)
+ RGB{Float64}(0.6,0.0,0.4)
+ RGB{Float64}(0.7,0.0,0.3)
+ RGB{Float64}(0.8,0.0,0.2)
+ RGB{Float64}(0.9,0.0,0.1)
+ RGB{Float64}(1.0,0.0,0.0)</code></pre><p>results (in IJulia) in</p><p><img src="../assets/conversions_views/linspace.png" alt="linspace"/></p><p><code>zeroarray</code> is a special constant that &quot;expands&quot; to return the equivalent of an all-zeros array with axes matching the other inputs to <code>colorview</code>.</p><h2 id="Changing-the-order-of-dimensions"><a class="docs-heading-anchor" href="#Changing-the-order-of-dimensions">Changing the order of dimensions</a><a id="Changing-the-order-of-dimensions-1"></a><a class="docs-heading-anchor-permalink" href="#Changing-the-order-of-dimensions" title="Permalink"></a></h2><p>When you&#39;ve separated colors into a separate color dimension, some code might assume that color is the last (slowest) dimension. You can convert directly using Julia&#39;s <code>permutedims</code> function:</p><pre><code class="language-julia-repl">julia&gt; pc = permutedims(a, (2,1))
+2×3 Matrix{Float64}:
+ 0.1  0.2  0.3
+ 0.4  0.5  0.6</code></pre><p><code>permutedims</code> explicitly creates a new array with the data rearranged in memory. It&#39;s also possible to perform something similar as a view:</p><pre><code class="language-julia-repl">julia&gt; pv = PermutedDimsArray(a, (2,1))
+2×3 PermutedDimsArray(::Matrix{Float64}, (2, 1)) with eltype Float64:
+ 0.1  0.2  0.3
+ 0.4  0.5  0.6</code></pre><p>While this looks the same, <code>pv</code> (unlike <code>pc</code>) shares memory with <code>a</code>; this is an <em>apparent</em> permutation, achieved by having the indexing of a <code>PermutedDimsArray</code> swap the input indexes whenever individual elements are accessed.</p><p>One thing to be aware of is that the performance of these two might differ, for reasons that have to do with how CPUs and memory work rather than any limitation of Julia. If <code>a</code> is large and you want to access all three elements corresponding to the color channels of a single pixel, <code>pv</code> will likely be more efficient because values are adjacent in memory and thus likely share a cache line. Conversely, if you want to access different pixels from a single color channel sequentially, <code>pc</code> may be more efficient (for the same reason).</p><h2 id="Adding-padding"><a class="docs-heading-anchor" href="#Adding-padding">Adding padding</a><a id="Adding-padding-1"></a><a class="docs-heading-anchor-permalink" href="#Adding-padding" title="Permalink"></a></h2><p>Sometimes when you want to compare two images, one might be of a different size than another. You can create array views that have common indices with <code>paddedviews</code>:</p><pre><code class="language-julia-repl">julia&gt; a1 = reshape([1,2], 2, 1)
+2×1 Matrix{Int64}:
+ 1
+ 2
+
+julia&gt; a2 = [1.0,2.0]&#39;
+1×2 adjoint(::Vector{Float64}) with eltype Float64:
+ 1.0  2.0
+
+julia&gt; a1p, a2p = paddedviews(0, a1, a2);   # 0 is the fill value
+
+julia&gt; a1p
+2×2 PaddedView(0, ::Matrix{Int64}, (Base.OneTo(2), Base.OneTo(2))) with eltype Int64:
+ 1  0
+ 2  0
+
+julia&gt; a2p
+2×2 PaddedView(0.0, adjoint(::Vector{Float64}), (Base.OneTo(2), Base.OneTo(2))) with eltype Float64:
+ 1.0  2.0
+ 0.0  0.0</code></pre><p>This can be especially useful in conjunction with <code>colorview</code> to compare two (or more) grayscale images. See <a href="../indexing/#Keeping-track-of-location-with-unconventional-indices">Keeping track of location with unconventional indices</a> for more information.</p><h2 id="StackedViews"><a class="docs-heading-anchor" href="#StackedViews">StackedViews</a><a id="StackedViews-1"></a><a class="docs-heading-anchor-permalink" href="#StackedViews" title="Permalink"></a></h2><p>Sometimes it&#39;s helpful to combine several images into a single view for further array-like manipulation.</p><pre><code class="language-julia-repl">julia&gt; img1 = reshape(1:8, (2,4))
+2×4 reshape(::UnitRange{Int64}, 2, 4) with eltype Int64:
+ 1  3  5  7
+ 2  4  6  8
+
+julia&gt; img2 = reshape(11:18, (2,4))
+2×4 reshape(::UnitRange{Int64}, 2, 4) with eltype Int64:
+ 11  13  15  17
+ 12  14  16  18
+
+julia&gt; sv = StackedView(img1, img2)
+2×2×4 StackedView{Int64, 3, Tuple{Base.ReshapedArray{Int64, 2, UnitRange{Int64}, Tuple{}}, Base.ReshapedArray{Int64, 2, UnitRange{Int64}, Tuple{}}}}:
+[:, :, 1] =
+  1   2
+ 11  12
+
+[:, :, 2] =
+  3   4
+ 13  14
+
+[:, :, 3] =
+  5   6
+ 15  16
+
+[:, :, 4] =
+  7   8
+ 17  18
+
+julia&gt; imgMatrix = reshape(sv, (2, 8))
+2×8 reshape(::StackedView{Int64, 3, Tuple{Base.ReshapedArray{Int64, 2, UnitRange{Int64}, Tuple{}}, Base.ReshapedArray{Int64, 2, UnitRange{Int64}, Tuple{}}}}, 2, 8) with eltype Int64:
+  1   2   3   4   5   6   7   8
+ 11  12  13  14  15  16  17  18</code></pre><h2 id="Decoupling-views-from-the-parent-memory"><a class="docs-heading-anchor" href="#Decoupling-views-from-the-parent-memory">Decoupling views from the parent memory</a><a id="Decoupling-views-from-the-parent-memory-1"></a><a class="docs-heading-anchor-permalink" href="#Decoupling-views-from-the-parent-memory" title="Permalink"></a></h2><p>If you want to use some of these views but have an application where the sharing of memory is actually problematic, keep in mind that you can always call Julia&#39;s <code>copy</code> function to create a copy of the array. The type of the resulting copy might not be identical to the original, but the values will be the same.</p><h2 id="Composing-views-(and-compact-summaries)"><a class="docs-heading-anchor" href="#Composing-views-(and-compact-summaries)">Composing views (and compact summaries)</a><a id="Composing-views-(and-compact-summaries)-1"></a><a class="docs-heading-anchor-permalink" href="#Composing-views-(and-compact-summaries)" title="Permalink"></a></h2><p>When Julia displays an array as text, there is usually a 1-line summary at the top showing the array type. You may have already noticed that JuliaImages uses an unconventional syntax for summarizing information about certain kinds of arrays. For example, the type of <code>pv</code> above is</p><pre><code class="language-julia">PermutedDimsArray{Float64,2,(2,1),(2,1),Matrix{Float64}}</code></pre><p>but when you display such an object, in the summary line it prints as</p><pre><code class="language-julia">2×3 PermutedDimsArray(::Matrix{Float64}, (2, 1)) with eltype Float64</code></pre><p>This is intended to result in more easily-readable information about types.</p><p>The main motivation for this is that different view types can be combined freely, and when you do so sometimes the type gets quite long. For example, suppose you have a disk file storing a <code>m×n×3×t UInt8</code> array representing an RGB movie (<code>t</code> being the time axis). To have it display as an RGB movie, you might create the following view of the array <code>A</code>:</p><pre><code class="language-julia-repl">julia&gt; A = rand(UInt8, 5, 6, 3, 10);
+
+julia&gt; mov = colorview(RGB, normedview(PermutedDimsArray(A, (3,1,2,4))));
+
+julia&gt; summary(mov)
+&quot;5×6×10 reinterpret(reshape, RGB{N0f8}, normedview(N0f8, PermutedDimsArray(::Array{UInt8, 4}, (3, 1, 2, 4)))) with eltype RGB{N0f8}&quot;
+
+julia&gt; typeof(mov)
+Base.ReinterpretArray{RGB{N0f8}, 3, N0f8, MappedArrays.MappedArray{N0f8, 4, PermutedDimsArray{UInt8, 4, (3, 1, 2, 4), (2, 3, 1, 4), Array{UInt8, 4}}, ImageCore.var&quot;#49#50&quot;{N0f8}, typeof(reinterpret)}, true}</code></pre><p>While there is little or no performance cost to making use of JuliaImage&#39;s convenient views, sometimes the types can get complicated!</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../arrays_colors/">« Arrays, Numbers, and Colors</a><a class="docs-footer-nextpage" href="../indexing/">Arrays: more advanced indexing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 15 June 2021 16:41">Tuesday 15 June 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
