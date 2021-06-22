@@ -31,7 +31,7 @@ welcome.
 | Adaptive equalization                 | [`AdaptiveEqualization`](@ref)            | `equalize_adapthist`              | `adapthisteq`                             |
 | Reference histogram matching          | [`Matching`](@ref)                        | `match_histograms`                | `imhistmatch`                             |
 | Quantization                          | map anonymous function                    |                                   | `imquantize`                              |
-| Threshold estimation                  | [`otsu_threshold`](@ref)                  | `threshold_otsu` etc.             | `graythresh` etc.                         |
+| Threshold estimation                  | [`Otsu`](@ref) etc. (HistogramThresholding.jl) | `threshold_otsu` etc.             | `graythresh` etc.                         |
 |                                       |                                           |                                   |                                           |
 | **Visualization and interactivity**   |                                           |                                   |                                           |
 | Visualization                         | `imshow` (ImageView.jl), [`mosaicview`](@ref) | `imshow`                      | `imshow`, `implay`, `montage`, etc.       |
