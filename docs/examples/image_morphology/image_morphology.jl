@@ -1,5 +1,5 @@
 # ---
-# title: Image Morphology
+# title: Morphological Operations
 # author: Ashwani Rathee
 # date: 2021-7-2
 # ---
@@ -23,15 +23,7 @@
 
 using Images, ImageView, ImageMorphology, TestImages, MosaicViews
 
-function get_image(url)
-    img = mktemp() do fn, f
-        download(url, fn)
-        load(fn)
-    end
-    img_resized = imresize(img, ratio = 1 / 2)
-end
-
-img = get_image("https://i.imgur.com/91IOKtJ.png");
+img = testimage("morphology_test_512")
 
 # This is an RGB image, which we would need to be convert to either grayscale
 # binary image as morphology functions only work on grayscale or binary images.
