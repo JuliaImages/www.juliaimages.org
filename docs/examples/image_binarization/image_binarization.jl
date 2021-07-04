@@ -1,5 +1,4 @@
 # ---
-# cover: assets/binarize.gif
 # title: Image Binarization
 # author: Ashwani Rathee
 # date: 2021-7-2
@@ -17,24 +16,30 @@
 
 # Let's first import our sudoku
 
-using Images, ImageBinarization, TestImages, MosaicViews
+using ImageBinarization, TestImages, MosaicViews, Colors
+using ImageTransformations, CoordinateTransformations, Rotations, ImageMorphology
 
-function get_image(url)
-    img = mktemp() do fn, f
-        download(url, fn)
-        load(fn)
-    end
-    img_resized = imresize(img, ratio = 1 / 2)
-end
+# Original Image
 
-img = get_image("https://i.imgur.com/DDLL6tp.png");
-img_gray = Gray.(img);
+img = testimage("sudoku")
 
-# Now let's binarize a image using Otsu algorithm
+# Grayscale version as binarize! only accepts Grayscale images
 
-alg = Otsu()
-img_otsu = binarize(img, alg)
-[img img_gray img_otsu]
+img = Gray.(img)
+
+# Let's first rotate our image
+trfm = recenter(RotMatrix(pi/30), center(img));
+imgw = warp(img, trfm)
+
+# Now lets zoom in a bit
+
+imgw = parent(imgw)[65:490,65:490]
+
+# Now let's binarize a image using Sauvola algorithm
+
+alg = Sauvola();
+img_otsu = binarize(imgw, alg)
+[imgw img_otsu]
 
 # Now the differences between the binarized and non-binarized images 
 # become apparent. Let's now implement a function to see how different algorithms 
@@ -54,17 +59,17 @@ algs = [
     "UnimodalRosin",
     "Yen",
 ]
-function binarize_methods(img, algs)
+function binarize_methods(img_input, algs)
     imgs_binarized = Array[]
     for i in algs
         alg = getfield(ImageBinarization, Symbol(i))()
-        img = binarize(img, alg)
-        push!(imgs_binarized, img)
+        img_input1 = binarize(img_input, alg)
+        push!(imgs_binarized, img_input1)
     end
     return imgs_binarized
 end
 
-output = binarize_methods(img, algs)
+output = binarize_methods(imgw, algs)
 mosaicview(output, nrow = 3, npad = 1)
 
 
