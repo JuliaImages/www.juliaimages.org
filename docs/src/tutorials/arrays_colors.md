@@ -221,6 +221,56 @@ These values are close to the channels of `c`, but have been rounded
 off---each channel is encoded with only 8 bits, so some approximation
 of the exact floating-point value is unavoidable.
 
+## Preserving colorant type while conversion
+
+While using `Float32`, `Float64` to convert the raw storage type of an image, 
+the color space information is lost. Replacaing `Float32`, `Float64` with their lower-case
+forms preserves the colorant type.
+
+- Grayscale Images
+
+```jldoctest; setup = :(using ImageCore;)
+julia> c = Gray(0.5)
+Gray{Float64}(0.5)
+
+julia> float64(c)
+Gray{Float64}(0.5)
+
+julia> Float64(c)
+0.5
+```
+- Color Images
+
+```jldoctest; setup = :(using ImageCore;)
+julia> c = RGB(0.2, 0.4, 0.8)
+RGB{Float64}(0.2,0.4,0.8)
+
+julia> float64(c)
+RGB{Float64}(0.2,0.4,0.8)
+
+julia> Float64(c)
+ERROR: MethodError: no method matching Float64(::RGB{Float64})
+Closest candidates are:
+  Float32(::Int8) at float.jl:60
+  Float32(::Int16) at float.jl:60
+  Float32(::Int32) at float.jl:60
+  ...
+  Stacktrace:
+  [...]
+```
+**Note**: `Float64(rgb_c)` throws error because it does not implicitly convert RGB to single channel.
+
+|  Storage Type 	|  Alternative 	|
+|---	|---	|
+| `Float32`  	|  [`float32`](@ref) 	|
+| `Float64` 	|  [`float64`](@ref) 	|
+|  `N0f8` 	  |  [`n0f8`](@ref) 	|
+|  `N6f10` 	  |  [`n6f10`](@ref) 	|
+|  `N4f12` 	  |  [`n4f12`](@ref) 	|
+|  `N2f14` 	  |  [`n2f14`](@ref) 	|
+|  `N0f16`	  |  [`n0f16`](@ref) 	|
+
+
 ## [A consistent scale for floating-point and "integer" colors: fixed-point numbers](@id fixedpoint)
 
 `c24` does not have an `r` field, but we can still use `red` to
