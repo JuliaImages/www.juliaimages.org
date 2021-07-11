@@ -1,4 +1,5 @@
 # ---
+# cover:  assets/morphology.gif
 # title: Morphological Operations
 # author: Ashwani Rathee
 # date: 2021-7-2
@@ -58,7 +59,7 @@ mosaicview(img_dilate, img_dilate1, img_dilate2, img_dilate3; nrow = 1)
 # ## Opening
 
 # Opening morphology operation is equivalent to `dilate(erode(img))`.
-# In opening(img, [region]), `region` allows you to control the 
+# In `opening(img, [region])`, `region` allows you to control the 
 # dimensions over which this operation is performed. Opening can remove 
 # small bright spots (i.e. “salt”) and connect small dark cracks.
 
@@ -71,7 +72,7 @@ mosaicview(img_opening, img_opening1, img_opening2, img_opening3; nrow = 1)
 # ## Closing
 
 # Closing morphology operation is equivalent to `erode(dilate(img))`.
-# In closing(img, [region]),`region` allows you to control the dimensions
+# In `closing(img, [region])`, `region` allows you to control the dimensions
 # over which this operation is performed. Closing can remove small dark
 # spots (i.e. “pepper”) and connect small bright cracks.
 
@@ -84,7 +85,7 @@ mosaicview(img_closing1, img_closing1, img_closing2, img_closing3; nrow = 1)
 # ## Tophat
 
 # Tophat is defined as the image minus its morphological opening.
-# In tophat(img, [region]),`region` allows you to control the dimensions
+# In `tophat(img, [region])`, `region` allows you to control the dimensions
 # over which this operation is performed. This operation returns the bright
 # spots of the image that are smaller than the structuring element.
 
@@ -97,7 +98,7 @@ mosaicview(img_tophat, img_tophat1, img_tophat2; nrow = 1)
 
 # Bottom Hat morphology operation is defined as its morphological closing
 # minus the original image.
-# In bothat(img, [region]),`region` allows you to control the dimensions
+# In `bothat(img, [region])`, `region` allows you to control the dimensions
 # over which this operation is performed.  This operation returns the 
 # dark spots of the image that are smaller than the structuring element.
 
@@ -110,7 +111,7 @@ mosaicview(img_bothat, img_bothat1, img_bothat2; nrow = 1)
 # ## Morphology Gradient
 # Morphological gradient returns morphological gradient of the image,
 # which is the difference between the dilation and the erosion of a 
-# given image. In morphogradient(img, [region]),`region` allows you to
+# given image. In `morphogradient(img, [region])`, `region` allows you to
 # control the dimensions over which this operation is performed.
 
 img_gray = Gray.(0.8 * Gray.(img) .> 0.7);
@@ -120,9 +121,12 @@ mosaicview(img_gray, img_morphograd; nrow = 1)
 # ## Morphological Laplace
 # Morphological Laplace performs `Morphological Laplacian` of an image,
 # which is defined as the arithmetic difference between the internal and 
-# the external gradient. In morpholaplace(img, [region])`,`region` allows
+# the external gradient. In `morpholaplace(img, [region])`, `region` allows
 # you to control the dimensions over which this operation is performed.
 
 img_gray = Gray.(0.8 * Gray.(img) .> 0.7);
 img_morpholap = morpholaplace(img_gray)
 mosaicview(img_gray, img_morpholap; nrow = 1)
+
+
+save("assets/morphology.gif", cat(img, img_erosion1, img_dilate1, img_opening1, img_closing1, img_bothat1; dims=3); fps=2) #src
