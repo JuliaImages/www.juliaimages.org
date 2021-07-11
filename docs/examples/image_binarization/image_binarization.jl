@@ -14,10 +14,10 @@
 # preprocess it to optimize it for cell content extraction which can then 
 # be used for solving the sudoku. 
 
-# Let's first import our sudoku
+# Let's first import packages and then testimage sudoku
 
-using ImageBinarization, TestImages, MosaicViews, Colors, FileIO, ImageShow
-using ImageTransformations, CoordinateTransformations, Rotations, ImageMorphology
+using Images, ImageBinarization, TestImages
+using  CoordinateTransformations, Rotations, ImageTransformations
 
 # Original Image
 
@@ -36,7 +36,7 @@ imgw = warp(img, trfm)
 
 imgw = parent(imgw)[65:490, 65:490]
 
-# Now let's binarize an image using the Sauvola algorithm
+# Now let's binarize an image using the `Sauvola` algorithm
 
 alg = Sauvola();
 img_otsu = binarize(imgw, alg)
@@ -88,6 +88,9 @@ end #src
 # | Intermodes | Otsu | Yen |
 # | ![](assets/test4.png) | ![](assets/test8.png) | ![](assets/test12.png) |
 
+# We can choose one of methods based on the results here, and use `OCReact.jl` 
+# which is based on Tesseract OCR to find the content in the sudoku and then
+# solve the sudoku.
 
 # Now let's take a simple example to understand the behavior of these algorithms
 # 
@@ -106,7 +109,7 @@ end #src
 # | Algorithm | Algorithm | Algorithm |
 # | :------: | :------: | :------: |
 # | AdaptiveThreshold | Balanced | Entropy |
-# | ![](assets/test113.png)  | ![](assets/test14.png)  | ![](assets/test15.png) |
+# | ![](assets/test13.png)  | ![](assets/test14.png)  | ![](assets/test15.png) |
 # | MinimumError |  Moments | Niblack |
 # | ![](assets/test16.png) | ![](assets/test17.png) | ![](assets/test18.png) |
 # | Polysegment | Sauvola | UnimodalRosin |
@@ -121,5 +124,5 @@ end #src
 # Every algorithm has its own way of selecting that threshold and in some methods
 # it can be defined.
 
-# binarize_methods() could be particularly useful when you are not aware of the 
+# `binarize_methods()`` could be particularly useful when you are not aware of the 
 # underlying assumptions made in algorithms and see all results and choose between them.
